@@ -42,7 +42,6 @@ public class ProcessTransRequest {
 		readCSVFile();
 		generateFraudulentCardHash();
 		
-		System.out.println("Success");
 	}
 	
 	private void readCSVFile() {
@@ -78,11 +77,12 @@ public class ProcessTransRequest {
 	private void generateFraudulentCardHash() {
 		System.out.println("Fraudulent Card Hash");
 		System.out.println("---------------------");
+		int i = 1;
 		for(String cardHash : transactions.keySet()) {
 			TransactionDetail record = transactions.get(cardHash);
 			if (record.isFraudulent()) {
-				System.out.println(record.getCardHash() + " | " + record.getInitiateTimeStamp() + " | " + 
-							record.getAmount());
+				System.out.println(i+". "+record.getCardHash());
+				i++;
 			}
 		}
 	}
