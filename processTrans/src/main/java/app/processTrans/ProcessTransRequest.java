@@ -126,7 +126,7 @@ public class ProcessTransRequest {
 	 * @param givenTime
 	 * @return True if givenTime is falls within 24 hour window
 	 */
-	private boolean isWithinTimeWindow(String initialTime, String givenTime) {
+	public boolean isWithinTimeWindow(String initialTime, String givenTime) {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
 			Date iniTime = sdf.parse(initialTime);
@@ -147,10 +147,10 @@ public class ProcessTransRequest {
 	 * @param hoursToAdd amount of time to be added 
 	 * @return returns final time after addition
 	 */
-	private Date addHoursToDate(Date iniTime, int hoursToAdd) {
+	public Date addHoursToDate(Date iniTime, int hoursToAdd) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(iniTime);
-		calendar.add(Calendar.HOUR_OF_DAY, 12);
+		calendar.add(Calendar.HOUR_OF_DAY, hoursToAdd);
 		return calendar.getTime();
 	}
 	
@@ -159,8 +159,13 @@ public class ProcessTransRequest {
 	 * @param fileName file to check 
 	 * @return returns True if given file has extension .csv
 	 */
-	private boolean csvFileValidation(String fileName) {
-		return fileName.matches(".+(\\.csv)$");
+	public boolean csvFileValidation(String fileName) {
+		try {
+			return fileName.matches(".+(\\.csv)$");
+		}catch (NullPointerException ne) {
+			System.out.println(ne);
+		}
+		return false;
 	}
 	
 	/**
@@ -168,7 +173,7 @@ public class ProcessTransRequest {
 	 * @param price
 	 * @return
 	 */
-	private boolean convertPriceArg(String price){
+	public boolean convertPriceArg(String price){
 		try {
 			setPriceThreshold(Double.parseDouble(price));
 			return true;
