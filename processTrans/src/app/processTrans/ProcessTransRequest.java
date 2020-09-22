@@ -1,4 +1,4 @@
-package main;
+package app.processTrans;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import exception.ProcessTransactionInvalidException;
+import app.processTrans.exception.ProcessTransactionInvalidException;
 
 public class ProcessTransRequest {
 	

@@ -1,4 +1,4 @@
-package exception;
+package app.processTrans.exception;
 
 public class ProcessTransactionInvalidException extends Exception{
 	

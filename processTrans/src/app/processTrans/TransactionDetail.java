@@ -1,4 +1,4 @@
-package main;
+package app.processTrans;
 
 public class TransactionDetail {
 	
