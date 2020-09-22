@@ -40,12 +40,7 @@ public class ProcessTransRequest {
 		}
 
 		readCSVFile();
-		//validateTransactions();
-		for(String i : transactions.keySet()) {
-			System.out.println(i);
-			System.out.println(transactions.get(i).getAmount() + " | " + transactions.get(i).isFraudulent()
-					+ " | " + transactions.get(i).getInitiateTimeStamp());
-		}
+		generateFraudulentCardHash();
 		
 		System.out.println("Success");
 	}
@@ -80,31 +75,57 @@ public class ProcessTransRequest {
 		
 	}
 	
+	private void generateFraudulentCardHash() {
+		System.out.println("Fraudulent Card Hash");
+		System.out.println("---------------------");
+		for(String cardHash : transactions.keySet()) {
+			TransactionDetail record = transactions.get(cardHash);
+			if (record.isFraudulent()) {
+				System.out.println(record.getCardHash() + " | " + record.getInitiateTimeStamp() + " | " + 
+							record.getAmount());
+			}
+		}
+	}
+	
+	/**
+	 * parses each line in csv file and adds valid records to transactions map.
+	 * @param hash cardnumber hash 
+	 * @param timeStamp timestamp in csv file
+	 * @param amnt amount in the csv file
+	 */
 	private void parseLine(String hash, String timeStamp, String amnt) {
 		double amount = Double.parseDouble(amnt);
 		TransactionDetail td ;
 		
 		if(transactions.containsKey(hash)) {
 			td = transactions.get(hash);
-			boolean valid = isWithinTimeWindow(td.getInitiateTimeStamp(), timeStamp);
+			boolean within24Window = isWithinTimeWindow(td.getInitiateTimeStamp(), timeStamp);
 			double updatedAmount;
-			if (valid) {
+			if (within24Window) {
 				updatedAmount = td.getAmount() + amount;
 			} else {
 				updatedAmount = amount;
 				td.setInitiateTimeStamp(timeStamp);
 			}
 			td.setAmount(updatedAmount);
-			if(td.getAmount() > 150 ) {
-				td.setFraudulent(true);
-			}
 		} else {
 			td = new TransactionDetail(hash, timeStamp, amount);
 			transactions.put(hash, td);
 		}
+		if(td.getAmount() > getPriceThreshold() ) {
+			td.setFraudulent(true);
+		} else {
+			td.setFraudulent(false);
+		}
 	}
 	
-	
+	/**
+	 * checks if given time falls within 24-four window starting from initialTime.
+	 * 
+	 * @param initialTime
+	 * @param givenTime
+	 * @return True if givenTime is falls within 24 hour window
+	 */
 	private boolean isWithinTimeWindow(String initialTime, String givenTime) {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
@@ -119,6 +140,13 @@ public class ProcessTransRequest {
 		return false;
 	}
 	
+	/**
+	 * Adds given number of hours to the passed in time.
+	 * 
+	 * @param iniTime time to add hours to
+	 * @param hoursToAdd amount of time to be added 
+	 * @return returns final time after addition
+	 */
 	private Date addHoursToDate(Date iniTime, int hoursToAdd) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(iniTime);
@@ -126,10 +154,20 @@ public class ProcessTransRequest {
 		return calendar.getTime();
 	}
 	
+	/**
+	 * checks for file type ".csv"
+	 * @param fileName file to check 
+	 * @return returns True if given file has extension .csv
+	 */
 	private boolean csvFileValidation(String fileName) {
 		return fileName.matches(".+(\\.csv)$");
 	}
 	
+	/**
+	 * converts and sets the price threshold for the transactions in csv file
+	 * @param price
+	 * @return
+	 */
 	private boolean convertPriceArg(String price){
 		try {
 			setPriceThreshold(Double.parseDouble(price));
