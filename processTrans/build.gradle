@@ -24,6 +24,7 @@ mainClassName = 'main.java.app.processTrans.ProcessTransRequest'
 
 test {
 	scanForTestClasses = false
+	dependsOn cleanTest
 	
 }
 
