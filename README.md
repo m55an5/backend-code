@@ -22,4 +22,12 @@ Note: In case you are specifying a path to the .csv file, on MAC you may encount
 
 
 <b>Execution: </b>
-   java -jar ./build/libs/processTrans-1.0.0.jar 150 transactions.csv 
+
+java -jar ./build/libs/processTrans-1.0.0.jar thresh_hold_price csv_file_path
+
+Examples
+
+java -jar ./build/libs/processTrans-1.0.0.jar 150 transaction.csv
+
+java -jar ./build/libs/processTrans-1.0.0.jar 150 /User/abc/Downloads/transaction.csv
+   
