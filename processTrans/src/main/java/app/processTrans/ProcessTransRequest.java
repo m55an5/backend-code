@@ -55,7 +55,8 @@ public class ProcessTransRequest {
 			while ( (line = br.readLine()) != null) {
 				String[] lineContent = line.split(splitOn);
 				if ( lineContent.length == MAX_COLUMNS_IN_FILE) {
-					parseLine(lineContent[0],lineContent[1],lineContent[2]);	
+					parseLine(lineContent[0],lineContent[1],lineContent[2]);
+					checkForFraud(lineContent[0]);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -99,19 +100,35 @@ public class ProcessTransRequest {
 		
 		if(transactions.containsKey(hash)) {
 			td = transactions.get(hash);
-			boolean within24Window = isWithinTimeWindow(td.getInitiateTimeStamp(), timeStamp);
-			double updatedAmount;
-			if (within24Window) {
-				updatedAmount = td.getAmount() + amount;
-			} else {
-				updatedAmount = amount;
-				td.setInitiateTimeStamp(timeStamp);
+			
+			if(!td.isFraudulent()) {
+			
+				boolean within24Window = isWithinTimeWindow(td.getInitiateTimeStamp(), timeStamp);
+				double updatedAmount;
+				if (within24Window) {
+					updatedAmount = td.getAmount() + amount;
+				} else {
+					updatedAmount = amount;
+					td.setInitiateTimeStamp(timeStamp);
+				}
+				td.setAmount(updatedAmount);
 			}
-			td.setAmount(updatedAmount);
+			
 		} else {
 			td = new TransactionDetail(hash, timeStamp, amount);
 			transactions.put(hash, td);
 		}
+		
+	}
+	
+	/**
+	 * checks if the record in transactions map is fraudulent.
+	 * 
+	 * @param hash card hash 
+	 */
+	public void checkForFraud(String hash) {
+		TransactionDetail td = transactions.get(hash);
+		
 		if(td.getAmount() > getPriceThreshold() ) {
 			td.setFraudulent(true);
 		} else {
@@ -126,7 +143,7 @@ public class ProcessTransRequest {
 	 * @param givenTime
 	 * @return True if givenTime is falls within 24 hour window
 	 */
-	private boolean isWithinTimeWindow(String initialTime, String givenTime) {
+	public boolean isWithinTimeWindow(String initialTime, String givenTime) {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
 			Date iniTime = sdf.parse(initialTime);
@@ -147,10 +164,10 @@ public class ProcessTransRequest {
 	 * @param hoursToAdd amount of time to be added 
 	 * @return returns final time after addition
 	 */
-	private Date addHoursToDate(Date iniTime, int hoursToAdd) {
+	public Date addHoursToDate(Date iniTime, int hoursToAdd) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(iniTime);
-		calendar.add(Calendar.HOUR_OF_DAY, 12);
+		calendar.add(Calendar.HOUR_OF_DAY, hoursToAdd);
 		return calendar.getTime();
 	}
 	
@@ -159,8 +176,13 @@ public class ProcessTransRequest {
 	 * @param fileName file to check 
 	 * @return returns True if given file has extension .csv
 	 */
-	private boolean csvFileValidation(String fileName) {
-		return fileName.matches(".+(\\.csv)$");
+	public boolean csvFileValidation(String fileName) {
+		try {
+			return fileName.matches(".+(\\.csv)$");
+		}catch (NullPointerException ne) {
+			System.out.println(ne);
+		}
+		return false;
 	}
 	
 	/**
@@ -168,7 +190,7 @@ public class ProcessTransRequest {
 	 * @param price
 	 * @return
 	 */
-	private boolean convertPriceArg(String price){
+	public boolean convertPriceArg(String price){
 		try {
 			setPriceThreshold(Double.parseDouble(price));
 			return true;
