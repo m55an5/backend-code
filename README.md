@@ -32,7 +32,16 @@ java -jar ./build/libs/processTrans-1.0.0.jar 150 transaction.csv
 java -jar ./build/libs/processTrans-1.0.0.jar 150 /User/abc/Downloads/transaction.csv
 
 
-## For Gradle Version 5.0 ( as tested on ubuntu) 
+## For Gradle Version 5.0 ( as tested on ubuntu)
+
+<b>found an issue with gradle wrapper</b>
+
+Run this in terminal (anywhere): gradle wrapper
+
+<b>If</b> ./gradlew commands still dont run refer the following commands.
+
+
+
 
 Run the following commands from within the project folder: /backend-code/processTrans/
 
