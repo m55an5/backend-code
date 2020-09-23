@@ -1,6 +1,7 @@
 package app.processTrans;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class ProcessTransRequest {
 		}
 
 		readCSVFile();
-		generateFraudulentCardHash();
+		printFraudulentCardHash();
 		
 	}
 	
@@ -49,14 +50,17 @@ public class ProcessTransRequest {
 		BufferedReader br = null;
 		String line = "";
 		String splitOn = ",";
-		
+
 		try {
-			br = new BufferedReader(new FileReader(this.csvTransFile));
-			while ( (line = br.readLine()) != null) {
-				String[] lineContent = line.split(splitOn);
-				if ( lineContent.length == MAX_COLUMNS_IN_FILE) {
-					parseLine(lineContent[0],lineContent[1],lineContent[2]);
-					checkForFraud(lineContent[0]);
+			File file = new File(this.csvTransFile);
+			if (file.exists()) {
+				br = new BufferedReader(new FileReader(file));
+				while ( (line = br.readLine()) != null) {
+					String[] lineContent = line.split(splitOn);
+					if ( lineContent.length == MAX_COLUMNS_IN_FILE) {
+						parseLine(lineContent[0],lineContent[1],lineContent[2]);
+						checkForFraud(lineContent[0]);
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -75,17 +79,18 @@ public class ProcessTransRequest {
 		
 	}
 	
-	private void generateFraudulentCardHash() {
-		System.out.println("Fraudulent Card Hash");
-		System.out.println("---------------------");
+	private void printFraudulentCardHash() {
+		System.out.println("\n\n\tFraudulent Card Hash");
+		System.out.println("\t---------------------");
 		int i = 1;
 		for(String cardHash : transactions.keySet()) {
 			TransactionDetail record = transactions.get(cardHash);
 			if (record.isFraudulent()) {
-				System.out.println(i+". "+record.getCardHash());
+				System.out.println("\t"+i+". "+record.getCardHash());
 				i++;
 			}
 		}
+		System.out.println("\t---------------------\n\n");
 	}
 	
 	/**
@@ -225,10 +230,6 @@ public class ProcessTransRequest {
 	}
 	
 	
-	
-	
-	
-	
 	/**
 	 * cli entry point.
 	 * 
@@ -241,16 +242,13 @@ public class ProcessTransRequest {
 			usage();
 			return;
 		} else {
-
 				ProcessTransRequest ptr = new ProcessTransRequest(args[0], args[1]);
 				try {
 					ptr.processFile();
 				} catch (Exception e) {
 					System.out.println(e);
 				}
-				
-		}
-		
+		}		
 		
 	}
 

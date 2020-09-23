@@ -61,10 +61,10 @@ task cucumber() {
     dependsOn assemble, testClasses
     doLast {
         javaexec {
-        	//ignoreExitValue = true
+        	ignoreExitValue = true
             main = "io.cucumber.core.cli.Main"
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
-            args = ['--plugin', 'pretty', '--glue', 'gradle.cucumber', 'src/test/java/resources']
+            args = ['--plugin', 'pretty', '--glue', '', 'src/test/java/']
         }
     }
 }
