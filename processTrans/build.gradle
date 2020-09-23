@@ -1,7 +1,14 @@
 plugins {
     id 'application'
     id 'java'
+    id 'eclipse'
+    id 'war'
 }
+
+
+version = '1.0.0'
+
+mainClassName = 'app.processTrans.ProcessTransRequest'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -13,17 +20,33 @@ repositories {
 }
 
 dependencies {
-	
+
 	testImplementation group: 'junit', name: 'junit', version: '4.13'
-   
+	
+	// https://mvnrepository.com/artifact/io.cucumber/cucumber-core
+	implementation group: 'io.cucumber', name: 'cucumber-core', version: '6.7.0'
+	testImplementation group: 'io.cucumber', name: 'cucumber-core', version: '6.7.0'
+	
+	//mvnrepository.com/artifact/io.cucumber/cucumber-java
+	implementation group: 'io.cucumber', name: 'cucumber-java', version: '6.7.0'
+	
+	// https://mvnrepository.com/artifact/io.cucumber/cucumber-junit
+	//testImplementation group: 'io.cucumber', name: 'cucumber-junit', version: '6.7.0'
+	
+	// https://mvnrepository.com/artifact/io.cucumber/cucumber-jvm-deps
+	providedCompile group: 'io.cucumber', name: 'cucumber-jvm-deps', version: '1.0.6'
+	
 }
 
-version = '1.0.0'
 
-mainClassName = 'main.java.app.processTrans.ProcessTransRequest'
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
 
 test {
-	scanForTestClasses = false
+	//scanForTestClasses = false
 	dependsOn cleanTest
 	
 }
@@ -31,5 +54,17 @@ test {
 jar {
     manifest {
         attributes "Main-Class": "$mainClassName"
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+        	ignoreExitValue = true
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', '', 'src/test/java/']
+        }
     }
 }
