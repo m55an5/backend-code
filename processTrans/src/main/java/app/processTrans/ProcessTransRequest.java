@@ -55,7 +55,8 @@ public class ProcessTransRequest {
 			while ( (line = br.readLine()) != null) {
 				String[] lineContent = line.split(splitOn);
 				if ( lineContent.length == MAX_COLUMNS_IN_FILE) {
-					parseLine(lineContent[0],lineContent[1],lineContent[2]);	
+					parseLine(lineContent[0],lineContent[1],lineContent[2]);
+					checkForFraud(lineContent[0]);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -99,19 +100,35 @@ public class ProcessTransRequest {
 		
 		if(transactions.containsKey(hash)) {
 			td = transactions.get(hash);
-			boolean within24Window = isWithinTimeWindow(td.getInitiateTimeStamp(), timeStamp);
-			double updatedAmount;
-			if (within24Window) {
-				updatedAmount = td.getAmount() + amount;
-			} else {
-				updatedAmount = amount;
-				td.setInitiateTimeStamp(timeStamp);
+			
+			if(!td.isFraudulent()) {
+			
+				boolean within24Window = isWithinTimeWindow(td.getInitiateTimeStamp(), timeStamp);
+				double updatedAmount;
+				if (within24Window) {
+					updatedAmount = td.getAmount() + amount;
+				} else {
+					updatedAmount = amount;
+					td.setInitiateTimeStamp(timeStamp);
+				}
+				td.setAmount(updatedAmount);
 			}
-			td.setAmount(updatedAmount);
+			
 		} else {
 			td = new TransactionDetail(hash, timeStamp, amount);
 			transactions.put(hash, td);
 		}
+		
+	}
+	
+	/**
+	 * checks if the record in transactions map is fraudulent.
+	 * 
+	 * @param hash card hash 
+	 */
+	public void checkForFraud(String hash) {
+		TransactionDetail td = transactions.get(hash);
+		
 		if(td.getAmount() > getPriceThreshold() ) {
 			td.setFraudulent(true);
 		} else {
