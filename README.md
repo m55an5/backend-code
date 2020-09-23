@@ -19,3 +19,7 @@ Run the following commands from within the project folder: /backend-code/process
 
 
 Note: In case you are specifying a path to the .csv file, on MAC you may encounter (Operation not permitted) due to MAC OS security, you can follow this <a href=https://osxdaily.com/2018/10/09/fix-operation-not-permitted-terminal-error-macos/>link</a> for a quick fix. Works on Catalina. 
+
+
+<b>Execution: </b>
+   java -jar ./build/libs/processTrans-1.0.0.jar 150 transactions.csv 
