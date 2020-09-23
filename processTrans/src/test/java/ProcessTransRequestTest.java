@@ -1,11 +1,11 @@
-package test.java;
+
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
-import main.java.app.processTrans.ProcessTransRequest;
+import app.processTrans.ProcessTransRequest;
 
 public class ProcessTransRequestTest extends TestCase {
 	private ProcessTransRequest ptr;
